@@ -86,6 +86,7 @@ class FBrefScraper:
     def scrapeTeams(self, csvPath=None):
         """Returns a dataframe of all stats for teams in the champions league"""
         teamStats = pd.DataFrame()
+        count = 0
         
         for season in self.seasons:
             print(f"Scraping {season - 1}/{season}...")
@@ -105,3 +106,5 @@ class FBrefScraper:
         if csvPath:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
+
+FBrefScraper([2021]).scrapeTeams("data/2021.csv")
