@@ -57,3 +57,19 @@ def categoryFrame(category, url):
     teamTable = getTable(url)
     dfTeam = getFrame(category, teamTable)
     return dfTeam
+
+def getTeamData(url):
+    """Returns a dataframe of all stats for teams in the champions league"""
+    dfStats = categoryFrame("stats", url)
+    dfKeepers = categoryFrame("keepers", url)
+    dfKeepersAdv = categoryFrame("keepersadv", url)
+    dfShooting = categoryFrame("shooting", url)
+    dfPassing = categoryFrame("passing", url)
+    dfPassingTypes = categoryFrame("passing_types", url)
+    dfGCA = categoryFrame("gca", url)
+    dfDefense = categoryFrame("defense", url)
+    dfPossession = categoryFrame("possession", url)
+    dfMisc = categoryFrame("misc", url)
+    df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc], axis=1)
+    df = df.loc[:,~df.columns.duplicated()]
+    return df
