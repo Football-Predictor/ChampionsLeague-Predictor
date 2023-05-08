@@ -22,7 +22,7 @@ STATS = {
 def categoryFrame(category, url):       
     """Returns a dataframe of a given category"""
     def getTable(url):
-        """Returns the table containing player stats"""
+        """Returns the table containing team stats"""
         res = requests.get(url)
         comm = re.compile("<!--|-->")
         soup = BeautifulSoup(comm.sub("",res.text),"lxml")
@@ -32,7 +32,7 @@ def categoryFrame(category, url):
 
     def getFrame(category, teamTable):
         """Returns a dataframe of a given category, from the
-        table containing player stats"""
+        table containing team stats"""
         dfDict = {}
         features = STATS[category]
         rows = teamTable.find_all("tr")
