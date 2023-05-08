@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 from copy import deepcopy
+from time import sleep
 
 # URL of FBref Champions League data, split into two parts tso that the category can be inserted in between
 URL = ["https://fbref.com/en/comps/8/", "-Champions-League-Stats"]
@@ -91,6 +92,12 @@ class FBrefScraper:
             url = deepcopy(URL)
             url[0] = f"{url[0]}{season - 1}-{season}/"
             url[1] = f"/{season - 1}-{season}-{url[1]}"
+            # FBref has a limit of 20 requests per minute
+            count += 10
+            if count >= 19:
+                print("Sleeping for 60 seconds...")
+                sleep(60)
+                count = 0
             dfSeason = getTeamData(url)
             dfSeason["season"] = season
             teamStats = teamStats._append(dfSeason, ignore_index=True)
