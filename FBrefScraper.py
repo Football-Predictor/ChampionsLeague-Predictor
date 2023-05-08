@@ -2,7 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
+from copy import deepcopy
 
+# URL of FBref Champions League data, split into two parts tso that the category can be inserted in between
+URL = ["https://fbref.com/en/comps/8/", "-Champions-League-Stats"]
 
 # Stats to be scraped from FBref.com, key is the category, value is a list of stat names to be pulled
 STATS = {
@@ -18,6 +21,7 @@ STATS = {
     "playingtime":['avg_age', 'games', 'minutes', 'minutes_per_game', 'minutes_pct', 'minutes_90s', 'games_starts', 'minutes_per_start', 'games_complete', 'games_subs', 'minutes_per_sub', 'unused_subs', 'points_per_game', 'on_goals_for', 'on_goals_against', 'plus_minus', 'plus_minus_per90', 'on_xg_for', 'on_xg_against', 'xg_plus_minus', 'xg_plus_minus_per90'],
     "misc": ['cards_yellow', 'cards_red', 'cards_yellow_red', 'fouls', 'fouled', 'offsides', 'crosses', 'interceptions', 'tackles_won', 'pens_won', 'pens_conceded', 'own_goals', 'ball_recoveries', 'aerials_won', 'aerials_lost', 'aerials_won_pct']
 }
+
 
 def categoryFrame(category, url):       
     """Returns a dataframe of a given category"""
@@ -73,3 +77,24 @@ def getTeamData(url):
     df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc], axis=1)
     df = df.loc[:,~df.columns.duplicated()]
     return df
+
+class FBrefScraper:
+    def __init__(self, seasons):
+        self.seasons = seasons
+    
+    def scrapeTeams(self, csvPath=None):
+        """Returns a dataframe of all stats for teams in the champions league"""
+        teamStats = pd.DataFrame()
+        
+        for season in self.seasons:
+            print(f"Scraping {season - 1}/{season}...")
+            url = deepcopy(URL)
+            url[0] = f"{url[0]}{season - 1}-{season}/"
+            url[1] = f"/{season - 1}-{season}-{url[1]}"
+            dfSeason = getTeamData(url)
+            dfSeason["season"] = season
+            teamStats = teamStats._append(dfSeason, ignore_index=True)
+
+        if csvPath:
+            teamStats.to_csv(csvPath, index=False)
+        return teamStats
