@@ -1,3 +1,10 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import re
+
+
+# Stats to be scraped from FBref.com, key is the category, value is a list of stat names to be pulled
 STATS = {
     "stats": ['team', 'players_used', 'avg_age', 'possession', 'games', 'games_starts', 'minutes', 'minutes_90s', 'goals', 'assists', 'goals_assists', 'goals_pens', 'pens_made', 'pens_att', 'cards_yellow', 'cards_red', 'xg', 'npxg', 'xg_assist', 'npxg_xg_assist', 'progressive_carries', 'progressive_passes', 'goals_per90', 'assists_per90', 'goals_assists_per90', 'goals_pens_per90', 'goals_assists_pens_per90', 'xg_per90', 'xg_assist_per90', 'xg_xg_assist_per90', 'npxg_per90', 'npxg_xg_assist_per90'],
     "keepers": ['players_used', 'gk_games', 'gk_games_starts', 'gk_minutes', 'minutes_90s', 'gk_goals_against', 'gk_goals_against_per90', 'gk_shots_on_target_against', 'gk_saves', 'gk_save_pct', 'gk_wins', 'gk_ties', 'gk_losses', 'gk_clean_sheets', 'gk_clean_sheets_pct', 'gk_pens_att', 'gk_pens_allowed', 'gk_pens_saved', 'gk_pens_missed', 'gk_pens_save_pct'],
@@ -11,3 +18,42 @@ STATS = {
     "playingtime":['avg_age', 'games', 'minutes', 'minutes_per_game', 'minutes_pct', 'minutes_90s', 'games_starts', 'minutes_per_start', 'games_complete', 'games_subs', 'minutes_per_sub', 'unused_subs', 'points_per_game', 'on_goals_for', 'on_goals_against', 'plus_minus', 'plus_minus_per90', 'on_xg_for', 'on_xg_against', 'xg_plus_minus', 'xg_plus_minus_per90'],
     "misc": ['cards_yellow', 'cards_red', 'cards_yellow_red', 'fouls', 'fouled', 'offsides', 'crosses', 'interceptions', 'tackles_won', 'pens_won', 'pens_conceded', 'own_goals', 'ball_recoveries', 'aerials_won', 'aerials_lost', 'aerials_won_pct']
 }
+
+def categoryFrame(category, url):       
+    """Returns a dataframe of a given category"""
+    def getTable(url):
+        """Returns the table containing player stats"""
+        res = requests.get(url)
+        comm = re.compile("<!--|-->")
+        soup = BeautifulSoup(comm.sub("",res.text),"lxml")
+        allTables = soup.findAll("tbody")
+        teamTable = allTables[0]
+        return teamTable
+
+    def getFrame(category, teamTable):
+        """Returns a dataframe of a given category, from the
+        table containing player stats"""
+        dfDict = {}
+        features = STATS[category]
+        rows = teamTable.find_all("tr")
+        for row in rows:
+            if row.find("th",{"scope":"row"}):
+                for f in features:
+                    cell = row.find("td",{"data-stat": f})
+                    if not cell:
+                        text = ''
+                    else:
+                        text = cell.text.strip().encode().decode("utf-8")
+                    if (text == ''):
+                        text = ''
+                    if f in dfDict:
+                        dfDict[f].append(text)
+                    else:
+                        dfDict[f] = [text]
+        dfTeam = pd.DataFrame.from_dict(dfDict)
+        return dfTeam
+    
+    url = url[0] + category + url[1]
+    teamTable = getTable(url)
+    dfTeam = getFrame(category, teamTable)
+    return dfTeam
