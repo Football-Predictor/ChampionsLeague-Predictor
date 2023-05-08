@@ -44,11 +44,14 @@ def categoryFrame(category, url):
         for row in rows:
             if row.find("th",{"scope":"row"}):
                 for f in features:
-                    cell = row.find("td",{"data-stat": f})
-                    if not cell:
-                        text = ''
+                    if f == 'team':
+                        text = row.find("th",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[1]
                     else:
-                        text = cell.text.strip().encode().decode("utf-8")
+                        cell = row.find("td",{"data-stat": f})
+                        if not cell:
+                            text = ''
+                        else:
+                            text = cell.text.strip().encode().decode("utf-8")
                     if (text == ''):
                         text = ''
                     if f in dfDict:
@@ -107,4 +110,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
 
-FBrefScraper([2021]).scrapeTeams("data/2021.csv")
+FBrefScraper([2021]).scrapeTeams("2021.csv")
