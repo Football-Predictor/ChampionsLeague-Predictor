@@ -89,14 +89,20 @@ def getTopScorerAssister(url):
     soup = BeautifulSoup(comm.sub("",res.text),"lxml")
     info = soup.find("div", {"id": "meta"})
     infoValues = info.find_all("p")
-    topScorerInfo = infoValues[3].text.strip().encode().decode("utf-8")
+    if len(infoValues) < 5:
+        scorerIndex = 2
+        assistIndex = 3
+    else:
+        scorerIndex = 3
+        assistIndex = 4
+    topScorerInfo = infoValues[scorerIndex].text.strip().encode().decode("utf-8")
     
     start_index = topScorerInfo.index("(") + 1
     end_index = topScorerInfo.index(")")
     topScorerTeam = topScorerInfo[start_index:end_index]
     topScorerGoals = int(topScorerInfo.split("-")[-1].strip())
 
-    topAssisterInfo = infoValues[4].text.strip().encode().decode("utf-8")
+    topAssisterInfo = infoValues[assistIndex].text.strip().encode().decode("utf-8")
     start_index = topAssisterInfo.index("(") + 1
     end_index = topAssisterInfo.index(")")
     topAssisterTeam = topAssisterInfo[start_index:end_index]
