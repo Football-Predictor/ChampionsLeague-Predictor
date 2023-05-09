@@ -82,6 +82,22 @@ def getTeamData(url):
     df = df.loc[:,~df.columns.duplicated()]
     return df
 
+def getTopScorer(url):
+    """returns the team and the amount of goals scored by the top scorer of the Champions League"""
+    res = requests.get(url)
+    comm = re.compile("<!--|-->")
+    soup = BeautifulSoup(comm.sub("",res.text),"lxml")
+    info = soup.find("div", {"id": "meta"})
+    infoValues = info.find_all("p")
+    # get value of infoValues[3] and infoValues[4]
+    topScorerInfo = infoValues[3].text.strip().encode().decode("utf-8")
+    start_index = topScorerInfo.index("(") + 1
+    end_index = topScorerInfo.index(")")
+    topScorerTeam = topScorerInfo[start_index:end_index]
+    topScorerGoals = int(topScorerInfo.split("-")[-1].strip())
+
+    return topScorerTeam, topScorerGoals
+
 class FBrefScraper:
     def __init__(self, seasons):
         self.seasons = seasons
@@ -109,5 +125,9 @@ class FBrefScraper:
         if csvPath:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
-
-FBrefScraper([2021]).scrapeTeams("2021.csv")
+    
+url = deepcopy(URL)
+url[0] = f"{url[0]}{2022 - 1}-{2022}/"
+url[1] = f"/{2022 - 1}-{2022}-{url[1]}"
+url = url[0] + "stats" + url[1]
+print(getTopScorer(url))
