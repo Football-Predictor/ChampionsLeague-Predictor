@@ -55,7 +55,11 @@ def getTopScorerPosition(url):
         if not row.has_attr("class"):
             position = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
             team = " ".join(row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2:])
-            topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")[1].strip()
+            topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")
+            if len(topGoals) < 2:
+                topGoals = 0
+            else:
+                topGoals = topGoals[1].strip()
             if not position.isnumeric():
                 position = convertPosition(position)
             
@@ -165,4 +169,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-FBrefScraper([2023]).scrapeTeams("2023.csv")
+FBrefScraper([2022,2021,2020,2019,2018,2017,2016,2015]).scrapeTeams("pastdata.csv")
