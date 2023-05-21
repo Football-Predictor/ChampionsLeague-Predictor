@@ -7,7 +7,7 @@ CONNECTIONSTRING = r"mongodb+srv://anduarielsivansteven:aass123!@ballondor.csw3k
 
 class mongoHandler:
     """A class to handle all mongoDB interactions"""
-    def __init__(self, connectionString=CONNECTIONSTRING, collectionName="BallondOrPredictor",dbName="ChampionsLeaguePredictor"):
+    def __init__(self, connectionString=CONNECTIONSTRING, collectionName="ChampionsLeaguePredictor",dbName="FootballPredictor"):
         self.client = MongoClient(connectionString)
         self.db = self.client[dbName]
         self.collection = self.db[collectionName]
