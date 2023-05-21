@@ -27,7 +27,11 @@ def getTopScorerPosition(url):
     """returns a dataframe of each teams position in the champions league as well as their top scorers goal tally"""
 
     def convertPosition(position):
-        if position == "SF":
+        if position == "W":
+            return 1
+        elif position == "F":
+            return 2
+        elif position == "SF":
             return 3
         elif position == "QF":
             return 5
@@ -153,4 +157,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-# FBrefScraper([2021]).scrapeTeams("test1.csv")
+FBrefScraper([2021]).scrapeTeams("test1.csv")
