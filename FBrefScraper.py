@@ -107,7 +107,7 @@ def categoryFrame(category, url):
                         if not cell:
                             text = ''
                         else:
-                            text = int(cell.text.strip().encode().decode("utf-8"))
+                            text = cell.text.strip().encode().decode("utf-8")
                             if "," in str(text):
                                 text = int(text.replace(",",""))
                     if (text == ''):
