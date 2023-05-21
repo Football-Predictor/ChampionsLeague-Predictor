@@ -38,6 +38,7 @@ def getTopScorerPosition(url):
         else:
             return -1
 
+    url = url[0] + url[1]
     res = requests.get(url)
     comm = re.compile("<!--|-->")
     soup = BeautifulSoup(comm.sub("",res.text),"lxml")
@@ -119,7 +120,8 @@ def getTeamData(url):
     dfDefense = categoryFrame("defense", url)
     dfPossession = categoryFrame("possession", url)
     dfMisc = categoryFrame("misc", url)
-    df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc], axis=1)
+    dfTopScorerPosition = getTopScorerPosition(url)
+    df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc, dfTopScorerPosition], axis=1)
     df = df.loc[:,~df.columns.duplicated()]
     return df
 
@@ -151,8 +153,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-url = deepcopy(URL)
-url[0] = f"{url[0]}{2022 - 1}-{2022}/"
-url[1] = f"/{2022 - 1}-{2022}-{url[1]}"
-url = url[0] + url[1]
-getTopScorerPosition(url)
+# FBrefScraper([2021]).scrapeTeams("test1.csv")
