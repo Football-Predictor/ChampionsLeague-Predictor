@@ -54,19 +54,26 @@ def getTopScorerPosition(url):
     for row in rows:
         if not row.has_attr("class"):
             position = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
-            team = row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2]
+            team = row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2:]
             topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")[1].strip()
             if not position.isnumeric():
                 position = convertPosition(position)
             
-            if "team" in dfDict:
+            if "team" in dfDict and "2023" not in url:
                 dfDict["team"].append(team)
                 dfDict["position"].append(position)
                 dfDict["topGoals"].append(topGoals)
-            else:
+            elif "2023" not in url:
                 dfDict["team"] = [team]
                 dfDict["position"] = [position]
                 dfDict["topGoals"] = [topGoals]
+            elif "team" in dfDict:
+                dfDict["team"].append(team)
+                dfDict["topGoals"].append(topGoals)
+            else:
+                dfDict["team"] = [team]
+                dfDict["topGoals"] = [topGoals]
+    
     df = pd.DataFrame.from_dict(dfDict)
     return df
 
@@ -125,8 +132,10 @@ def getTeamData(url):
     dfPossession = categoryFrame("possession", url)
     dfMisc = categoryFrame("misc", url)
     dfTopScorerPosition = getTopScorerPosition(url)
-    df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc, dfTopScorerPosition], axis=1)
+    df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc], axis=1)
     df = df.loc[:,~df.columns.duplicated()]
+    # must merge the two dataframes because they are in different order than the rest of the stats
+    df = pd.merge(df, dfTopScorerPosition, on='team')
     return df
 
 class FBrefScraper:
@@ -157,4 +166,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-FBrefScraper([2021]).scrapeTeams("test1.csv")
+FBrefScraper([2023]).scrapeTeams("2023.csv")
