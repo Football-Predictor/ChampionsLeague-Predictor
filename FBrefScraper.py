@@ -107,7 +107,9 @@ def categoryFrame(category, url):
                         if not cell:
                             text = ''
                         else:
-                            text = cell.text.strip().encode().decode("utf-8")
+                            text = int(cell.text.strip().encode().decode("utf-8"))
+                            if "," in str(text):
+                                text = int(text.replace(",",""))
                     if (text == ''):
                         text = ''
                     if f in dfDict:
@@ -169,4 +171,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-FBrefScraper([2022,2021,2020,2019,2018,2017,2016,2015]).scrapeTeams("pastdata.csv")
+FBrefScraper([2022,2021,2020,2019,2018]).scrapeTeams("pastdata.csv")
