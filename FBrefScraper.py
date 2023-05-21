@@ -23,6 +23,47 @@ STATS = {
     "misc": ['cards_yellow', 'cards_red', 'cards_yellow_red', 'fouls', 'fouled', 'offsides', 'crosses', 'interceptions', 'tackles_won', 'pens_won', 'pens_conceded', 'own_goals', 'ball_recoveries', 'aerials_won', 'aerials_lost', 'aerials_won_pct']
 }
 
+def getTopScorerPosition(url):
+    """returns a dataframe of each teams position in the champions league as well as their top scorers goal tally"""
+
+    def convertPosition(position):
+        if position == "SF":
+            return 3
+        elif position == "QF":
+            return 5
+        elif position == "R16":
+            return 9
+        elif position == "GR":
+            return 17
+        else:
+            return -1
+
+    res = requests.get(url)
+    comm = re.compile("<!--|-->")
+    soup = BeautifulSoup(comm.sub("",res.text),"lxml")
+    allTables = soup.findAll("tbody")
+    teamTable = allTables[8]
+
+    dfDict = {}
+    rows = teamTable.find_all("tr")
+    for row in rows:
+        if not row.has_attr("class"):
+            position = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
+            team = row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2]
+            topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")[1].strip()
+            if not position.isnumeric():
+                position = convertPosition(position)
+            
+            if "team" in dfDict:
+                dfDict["team"].append(team)
+                dfDict["position"].append(position)
+                dfDict["topGoals"].append(topGoals)
+            else:
+                dfDict["team"] = [team]
+                dfDict["position"] = [position]
+                dfDict["topGoals"] = [topGoals]
+    df = pd.DataFrame.from_dict(dfDict)
+    return df
 
 def categoryFrame(category, url):       
     """Returns a dataframe of a given category"""
@@ -82,34 +123,6 @@ def getTeamData(url):
     df = df.loc[:,~df.columns.duplicated()]
     return df
 
-def getTopScorerAssister(url):
-    """Returns the team and the amount of goals scored by the top scorer of the Champions League"""
-    res = requests.get(url)
-    comm = re.compile("<!--|-->")
-    soup = BeautifulSoup(comm.sub("",res.text),"lxml")
-    info = soup.find("div", {"id": "meta"})
-    infoValues = info.find_all("p")
-    if len(infoValues) < 5:
-        scorerIndex = 2
-        assistIndex = 3
-    else:
-        scorerIndex = 3
-        assistIndex = 4
-    topScorerInfo = infoValues[scorerIndex].text.strip().encode().decode("utf-8")
-    
-    start_index = topScorerInfo.index("(") + 1
-    end_index = topScorerInfo.index(")")
-    topScorerTeam = topScorerInfo[start_index:end_index]
-    topScorerGoals = int(topScorerInfo.split("-")[-1].strip())
-
-    topAssisterInfo = infoValues[assistIndex].text.strip().encode().decode("utf-8")
-    start_index = topAssisterInfo.index("(") + 1
-    end_index = topAssisterInfo.index(")")
-    topAssisterTeam = topAssisterInfo[start_index:end_index]
-    topAssisterAssists = int(topAssisterInfo.split("-")[-1].strip())
-
-    return topScorerTeam, topScorerGoals, topAssisterTeam, topAssisterAssists
-
 class FBrefScraper:
     def __init__(self, seasons):
         self.seasons = seasons
@@ -141,5 +154,5 @@ class FBrefScraper:
 url = deepcopy(URL)
 url[0] = f"{url[0]}{2022 - 1}-{2022}/"
 url[1] = f"/{2022 - 1}-{2022}-{url[1]}"
-url = url[0] + "stats" + url[1]
-print(getTopScorerAssister(url))
+url = url[0] + url[1]
+getTopScorerPosition(url)
