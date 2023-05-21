@@ -55,7 +55,6 @@ def getTopScorerPosition(url):
         if not row.has_attr("class"):
             position = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
             team = " ".join(row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2:])
-            print(team)
             topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")[1].strip()
             if not position.isnumeric():
                 position = convertPosition(position)
@@ -74,7 +73,6 @@ def getTopScorerPosition(url):
             else:
                 dfDict["team"] = [team]
                 dfDict["topGoals"] = [topGoals]
-    
     df = pd.DataFrame.from_dict(dfDict)
     return df
 
@@ -99,7 +97,7 @@ def categoryFrame(category, url):
             if row.find("th",{"scope":"row"}):
                 for f in features:
                     if f == 'team':
-                        text = row.find("th",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[1]
+                        text = " ".join(row.find("th",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[1:])
                     else:
                         cell = row.find("td",{"data-stat": f})
                         if not cell:
@@ -167,4 +165,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-getTopScorerPosition(["https://fbref.com/en/comps/8/Champions-League-Stats",""])
+FBrefScraper([2023]).scrapeTeams("2023.csv")
