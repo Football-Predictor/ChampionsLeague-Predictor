@@ -111,7 +111,7 @@ def categoryFrame(category, url):
                             if "," in str(text):
                                 text = int(text.replace(",",""))
                     if (text == ''):
-                        text = ''
+                        text = 0
                     if f in dfDict:
                         dfDict[f].append(text)
                     else:
