@@ -172,3 +172,7 @@ class FBrefScraper:
         return teamStats
     
 FBrefScraper([2022,2021,2020,2019,2018]).scrapeTeams("pastdata.csv")
+
+df = pd.DataFrame('pastdata.csv')
+
+df
