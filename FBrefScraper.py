@@ -171,4 +171,4 @@ class FBrefScraper:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
     
-FBrefScraper([2022,2021,2020,2019,2018]).scrapeTeams("pastdata.csv")
+FBrefScraper([2023]).scrapeTeams("2023data.csv")
