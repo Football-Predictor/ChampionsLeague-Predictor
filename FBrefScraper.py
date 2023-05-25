@@ -23,21 +23,21 @@ STATS = {
     "misc": ['cards_yellow', 'cards_red', 'cards_yellow_red', 'fouls', 'fouled', 'offsides', 'crosses', 'interceptions', 'tackles_won', 'pens_won', 'pens_conceded', 'own_goals', 'ball_recoveries', 'aerials_won', 'aerials_lost', 'aerials_won_pct']
 }
 
-def getTopScorerPosition(url):
-    """returns a dataframe of each teams position in the champions league as well as their top scorers goal tally"""
+def getStanding(url):
+    """returns a dataframe of each teams standing in the champions league as well as their top scorers goal tally"""
 
-    def convertPosition(position):
-        if position == "W":
+    def convertStanding(standing):
+        if standing == "W":
             return 1
-        elif position == "F":
+        elif standing == "F":
             return 2
-        elif position == "SF":
+        elif standing == "SF":
             return 3
-        elif position == "QF":
+        elif standing == "QF":
             return 5
-        elif position == "R16":
+        elif standing == "R16":
             return 9
-        elif position == "GR":
+        elif standing == "GR":
             return 17
         else:
             return -1
@@ -53,30 +53,21 @@ def getTopScorerPosition(url):
     rows = teamTable.find_all("tr")
     for row in rows:
         if not row.has_attr("class"):
-            position = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
+            standing = row.find("th", {"data-stat":"rank"}).text.strip().encode().decode("utf-8")
             team = " ".join(row.find("td",{"data-stat":"team"}).text.strip().encode().decode("utf-8").split(" ")[2:])
-            topGoals = row.find("td",{"data-stat":"top_team_scorers"}).text.strip().encode().decode("utf-8").split(" - ")
-            if len(topGoals) < 2:
-                topGoals = 0
-            else:
-                topGoals = topGoals[1].strip()
-            if not position.isnumeric():
-                position = convertPosition(position)
+            if not standing.isnumeric():
+                standing = convertStanding(standing)
             
             if "team" in dfDict and "2023" not in url:
                 dfDict["team"].append(team)
-                dfDict["position"].append(position)
-                dfDict["top_goals"].append(topGoals)
+                dfDict["standing"].append(standing)
             elif "2023" not in url:
                 dfDict["team"] = [team]
-                dfDict["position"] = [position]
-                dfDict["top_goals"] = [topGoals]
+                dfDict["standing"] = [standing]
             elif "team" in dfDict:
                 dfDict["team"].append(team)
-                dfDict["top_goals"].append(topGoals)
             else:
                 dfDict["team"] = [team]
-                dfDict["top_goals"] = [topGoals]
     df = pd.DataFrame.from_dict(dfDict)
     return df
 
@@ -136,11 +127,11 @@ def getTeamData(url):
     dfDefense = categoryFrame("defense", url)
     dfPossession = categoryFrame("possession", url)
     dfMisc = categoryFrame("misc", url)
-    dfTopScorerPosition = getTopScorerPosition(url)
+    dfStanding = getStanding(url)
     df = pd.concat([dfStats, dfKeepers, dfKeepersAdv, dfShooting, dfPassing, dfPassingTypes, dfGCA, dfDefense, dfPossession, dfMisc], axis=1)
     df = df.loc[:,~df.columns.duplicated()]
     # must merge the two dataframes because they are in different order than the rest of the stats
-    df = pd.merge(df, dfTopScorerPosition, on='team')
+    df = pd.merge(df, dfStanding, on='team')
     return df
 
 class FBrefScraper:
