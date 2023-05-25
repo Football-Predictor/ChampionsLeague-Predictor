@@ -66,17 +66,17 @@ def getTopScorerPosition(url):
             if "team" in dfDict and "2023" not in url:
                 dfDict["team"].append(team)
                 dfDict["position"].append(position)
-                dfDict["topGoals"].append(topGoals)
+                dfDict["top_goals"].append(topGoals)
             elif "2023" not in url:
                 dfDict["team"] = [team]
                 dfDict["position"] = [position]
-                dfDict["topGoals"] = [topGoals]
+                dfDict["top_goals"] = [topGoals]
             elif "team" in dfDict:
                 dfDict["team"].append(team)
-                dfDict["topGoals"].append(topGoals)
+                dfDict["top_goals"].append(topGoals)
             else:
                 dfDict["team"] = [team]
-                dfDict["topGoals"] = [topGoals]
+                dfDict["top_goals"] = [topGoals]
     df = pd.DataFrame.from_dict(dfDict)
     return df
 
