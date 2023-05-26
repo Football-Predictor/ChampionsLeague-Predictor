@@ -161,5 +161,5 @@ class FBrefScraper:
         if csvPath:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
-    
-FBrefScraper([2023]).scrapeTeams("2023data.csv")
+
+  
