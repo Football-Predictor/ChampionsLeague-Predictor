@@ -3,7 +3,7 @@ import pandas as pd
 from pandas import json_normalize
 
 # This will be removed for final version, this is our connection string to mongoDB
-CONNECTIONSTRING = r"mongodb+srv://anduarielsivansteven:aass123!@ballondor.csw3klm.mongodb.net/?retryWrites=true&w=majority"
+CONNECTIONSTRING = r""
 
 class mongoHandler:
     """A class to handle all mongoDB interactions"""
