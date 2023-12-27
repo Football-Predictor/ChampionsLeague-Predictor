@@ -58,10 +58,10 @@ def getStanding(url):
             if not standing.isnumeric():
                 standing = convertStanding(standing)
             
-            if "team" in dfDict and "2023" not in url:
+            if "team" in dfDict and "2024" not in url:
                 dfDict["team"].append(team)
                 dfDict["standing"].append(standing)
-            elif "2023" not in url:
+            elif "2024" not in url:
                 dfDict["team"] = [team]
                 dfDict["standing"] = [standing]
             elif "team" in dfDict:
@@ -161,5 +161,8 @@ class FBrefScraper:
         if csvPath:
             teamStats.to_csv(csvPath, index=False)
         return teamStats
+
+scraper = FBrefScraper([2024])
+scraper.scrapeTeams("data/2024data.csv")
 
   
